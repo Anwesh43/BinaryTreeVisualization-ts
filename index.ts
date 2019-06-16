@@ -6,6 +6,22 @@ const r : number = Math.min(wgap, hgap) / 5
 const scGap : number = 0.1
 var data = 0
 
+class DrawingUtil {
+
+    static drawFillCircle(context : CanvasRenderingContext2D, x : number, y : number, r : number) {
+        context.beginPath()
+        context.arc(x, y, r, 0, 2 * Math.PI)
+        context.fill()
+    }
+
+    static drawLine(context : CanvasRenderingContext2D, x1 : number, y1 : number, x2 : number, y2 : number) {
+        context.beginPath()
+        context.moveTo(x1, y1)
+        context.lineTo(x2, y2)
+        context.stroke()
+    }
+}
+
 class Animator {
 
     nodes : Array<BinaryTreeNode> = []
@@ -98,9 +114,13 @@ class BinaryTreeNode {
     }
 
     drawNode(context : CanvasRenderingContext2D) {
-        context.beginPath()
-        context.arc(this.x, this.y, r, 0, 2 * Math.PI)
-        context.fill()
+        DrawingUtil.drawFillCircle(context, this.x, this.y, r)
+        if (this.left) {
+            DrawingUtil.drawLine(context, this.x, this.y, this.left.x, this.left.y)
+        }
+        if (this.right) {
+            DrawingUtil.drawLine(context, this.x, this.y, this.right.x, this.right.y)
+        }
     }
 
     start() {
