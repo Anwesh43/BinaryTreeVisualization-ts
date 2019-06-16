@@ -6,6 +6,10 @@ const r : number = Math.min(wgap, hgap) / 5
 const scGap : number = 0.1
 var data = 0
 
+const insideCircle = (x : number, y : number, cx: number, cy : number, r : number) => {
+    return x >= cx - r && x <= cx + r && y >= cy - r && y <= cy + r
+}
+
 class DrawingUtil {
 
     static drawFillCircle(context : CanvasRenderingContext2D, x : number, y : number, r : number) {
@@ -117,9 +121,11 @@ class BinaryTreeNode {
         DrawingUtil.drawFillCircle(context, this.x, this.y, r)
         if (this.left) {
             DrawingUtil.drawLine(context, this.x, this.y, this.left.x, this.left.y)
+            this.left.drawNode(context)
         }
         if (this.right) {
             DrawingUtil.drawLine(context, this.x, this.y, this.right.x, this.right.y)
+            this.right.drawNode(context)
         }
     }
 
@@ -133,5 +139,12 @@ class BinaryTreeNode {
         this.x = this.ox + (this.dx - this.ox) * this.state.scale
         this.y = this.oy + (this.dy - this.oy) * this.state.scale
         this.state.update(cb)
+    }
+
+    handleTap(x : number, y : number) : boolean {
+        if (this.left != null && this.right != null) {
+            return false
+        }
+        return insideCircle(x, y, this.x, this.y, r)
     }
 }
