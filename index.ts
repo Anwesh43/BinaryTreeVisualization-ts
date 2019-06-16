@@ -2,8 +2,8 @@ const w : number = window.innerWidth, h : number = window.innerHeight
 const maxNodes : number = 20
 const hgap : number = h / (maxNodes)
 const wgap : number = (w / 2) / (maxNodes)
-const r : number = Math.min(wgap, hgap) / 5
-const scGap : number = 0.1
+const r : number = Math.max(wgap, hgap) / 4
+const scGap : number = 0.05
 var data = 0
 
 const backColor = "#BDBDBD"
@@ -56,7 +56,7 @@ class Animator {
                     }
                 })
             })
-        })
+        }, 20)
     }
 }
 
@@ -187,6 +187,7 @@ class TouchHandler {
     handleTap(x : number, y : number, root : BinaryTreeNode, startcb : Function) {
         if (this.curr == null) {
             this.curr = root.handleTap(x, y)
+            console.log(this.curr)
         } else {
             var newNode : BinaryTreeNode = null
             if (this.curr.isPointingToLeft(x)) {
@@ -196,7 +197,9 @@ class TouchHandler {
                 this.curr.addRightNode()
                 newNode = this.curr.right
             }
+            console.log(newNode)
             startcb(newNode)
+            this.curr = null
         }
     }
 }
@@ -210,7 +213,7 @@ class Renderer {
     context : CanvasRenderingContext2D
 
     constructor() {
-        this.root.setPositions(w / 2, 0,  w / 2, 0)
+        this.root.setPositions(w / 2, r,  w / 2, r)
         this.initCanvas()
     }
 
@@ -223,26 +226,29 @@ class Renderer {
 
     setStyle() {
         this.context.strokeStyle = foreColor
-        this.context.fillStyle = backColor
+        this.context.fillStyle = foreColor
         this.context.lineCap = 'round'
         this.context.lineWidth = Math.min(w, h) / 80
     }
 
     render() {
         this.context.fillStyle = backColor
-        this.root.drawNode(this.context)
+        this.context.fillRect(0, 0, w, h)
         this.setStyle()
-
+        this.root.drawNode(this.context)
     }
 
-    handleTap(x : number, y : number) {
-        this.th.handleTap(x, y, this.root, (node) => {
-            node.start(() => {
-                this.animator.add(node)
+    handleTap() {
+        this.canvas.onmousedown = (event) => {
+            this.th.handleTap(event.offsetX, event.offsetY, this.root, (node) => {
+                node.start(() => {
+                    this.animator.add(node)
+                })
             })
-        })
+        }
     }
 }
 
 const renderer = new Renderer()
 renderer.render()
+renderer.handleTap()
