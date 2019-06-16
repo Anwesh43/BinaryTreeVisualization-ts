@@ -141,10 +141,56 @@ class BinaryTreeNode {
         this.state.update(cb)
     }
 
-    handleTap(x : number, y : number) : boolean {
-        if (this.left != null && this.right != null) {
-            return false
+    handleTap(x : number, y : number) : BinaryTreeNode {
+        if (this.state.dir != 0) {
+            return null
         }
-        return insideCircle(x, y, this.x, this.y, r)
+        if (this.left != null && this.right != null) {
+            if (insideCircle(x, y, this.x, this.y, r)) {
+                return null
+            } else {
+                const nodeLeft = this.left.handleTap(x, y)
+                if (nodeLeft != null) {
+                    return nodeLeft
+                }
+                const rightNode = this.right.handleTap(x, y)
+                if (rightNode != null) {
+                    return rightNode
+                }
+                return null
+            }
+        }
+        if (insideCircle(x, y, this.x, this.y, r)) {
+            return this
+        }
+    }
+
+    isPointingToLeft(x : number) {
+        return x <= this.x && this.left == null
+    }
+
+    isPointingToRight(x : number) {
+        return x >= this.x && this.right == null
+    }
+}
+
+class TouchHandler {
+
+    curr : BinaryTreeNode = null
+
+    handleTap(x : number, y : number, cb : Function, startcb : Function) {
+        if (this.curr == null) {
+            this.curr = cb(this)
+        } else {
+            var newNode : BinaryTreeNode = null
+            if (this.curr.isPointingToLeft(x)) {
+                this.curr.addLeftNode()
+                newNode = this.curr.left
+            } else if (this.curr.isPointingToRight(x)) {
+                this.curr.addRightNode()
+                newNode = this.curr.right
+            }
+            startcb(newNode)
+        }
     }
 }
