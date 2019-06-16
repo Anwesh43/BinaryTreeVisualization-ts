@@ -6,6 +6,9 @@ const r : number = Math.min(wgap, hgap) / 5
 const scGap : number = 0.1
 var data = 0
 
+const backColor = "#BDBDBD"
+const foreColor = "#283593"
+
 const insideCircle = (x : number, y : number, cx: number, cy : number, r : number) => {
     return x >= cx - r && x <= cx + r && y >= cy - r && y <= cy + r
 }
@@ -218,8 +221,18 @@ class Renderer {
         document.body.appendChild(this.canvas)
     }
 
+    setStyle() {
+        this.context.strokeStyle = foreColor
+        this.context.fillStyle = backColor
+        this.context.lineCap = 'round'
+        this.context.lineWidth = Math.min(w, h) / 80
+    }
+
     render() {
+        this.context.fillStyle = backColor
         this.root.drawNode(this.context)
+        this.setStyle()
+
     }
 
     handleTap(x : number, y : number) {
@@ -230,3 +243,6 @@ class Renderer {
         })
     }
 }
+
+const renderer = new Renderer()
+renderer.render()
