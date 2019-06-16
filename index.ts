@@ -31,6 +31,10 @@ class Animator {
     nodes : Array<BinaryTreeNode> = []
     interval : number
 
+    constructor(private renderer : Renderer) {
+
+    }
+
     add(node : BinaryTreeNode) {
         this.nodes.push(node)
         if (this.nodes.length == 1) {
@@ -40,6 +44,7 @@ class Animator {
 
     start() {
         this.interval = setInterval(() => {
+            this.renderer.render()
             this.nodes.forEach((node, i) => {
                 node.update(() => {
                     this.nodes.splice(i, 1)
@@ -51,8 +56,6 @@ class Animator {
         })
     }
 }
-
-const animator = new Animator()
 
 class State {
 
@@ -129,9 +132,9 @@ class BinaryTreeNode {
         }
     }
 
-    start() {
+    start(cb) {
         this.state.startUpdating(() => {
-            animator.add(this)
+            cb()
         })
     }
 
@@ -178,9 +181,9 @@ class TouchHandler {
 
     curr : BinaryTreeNode = null
 
-    handleTap(x : number, y : number, cb : Function, startcb : Function) {
+    handleTap(x : number, y : number, root : BinaryTreeNode, startcb : Function) {
         if (this.curr == null) {
-            this.curr = cb(this)
+            this.curr = root.handleTap(x, y)
         } else {
             var newNode : BinaryTreeNode = null
             if (this.curr.isPointingToLeft(x)) {
@@ -192,5 +195,38 @@ class TouchHandler {
             }
             startcb(newNode)
         }
+    }
+}
+
+class Renderer {
+
+    root : BinaryTreeNode = new BinaryTreeNode(data)
+    th : TouchHandler = new TouchHandler()
+    animator : Animator = new Animator(this)
+    canvas : HTMLCanvasElement = document.createElement('canvas')
+    context : CanvasRenderingContext2D
+
+    constructor() {
+        this.root.setPositions(w / 2, 0,  w / 2, 0)
+        this.initCanvas()
+    }
+
+    initCanvas() {
+        this.canvas.width = w
+        this.canvas.height = h
+        this.context = this.canvas.getContext('2d')
+        document.body.appendChild(this.canvas)
+    }
+
+    render() {
+        this.root.drawNode(this.context)
+    }
+
+    handleTap(x : number, y : number) {
+        this.th.handleTap(x, y, this.root, (node) => {
+            node.start(() => {
+                this.animator.add(node)
+            })
+        })
     }
 }
